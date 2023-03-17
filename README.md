@@ -11,7 +11,7 @@ A simple&amp;quick 2D game
 Plz download the jar in releases :)
 
 ## How to play?
-1. Laugh the jar
+1. Launch the jar
 2. Press A and D to move. Press space to jump. Move the mouse to control weapon. Left-Click to shoot.
 3. When you kill a enemy, points will be added.
 4. When you be touched by a enemy, game will over.
