@@ -5,13 +5,14 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.input.UserAction;
 import javafx.scene.input.MouseButton;
+import org.jetbrains.annotations.NotNull;
 
 public class WeaponComponent extends Component {
     private Weapon weapon;
     private final UserAction fight = new UserAction("fight") {
         @Override
         protected void onAction() {
-            weapon.fight();
+            WeaponComponent.this.getWeapon().fight();
         }
     };
 
@@ -19,7 +20,11 @@ public class WeaponComponent extends Component {
         return weapon;
     }
 
-    public void setWeapon(Weapon weapon) {
+    public void setWeapon(@NotNull Weapon weapon) {
+        if(this.weapon != null && this.weapon.getEntity() != weapon.getEntity()) {
+            this.weapon.getEntity().removeFromWorld();
+            weapon.onAdded();
+        }
         this.weapon = weapon;
     }
 

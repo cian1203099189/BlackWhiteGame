@@ -1,9 +1,10 @@
 package cn.hellp.touch.cpc102;
 
 import cn.hellp.touch.cpc102.auxiliary.EntityType;
+import cn.hellp.touch.cpc102.componet.ChildBarComponent;
 import cn.hellp.touch.cpc102.componet.GravityComponent;
+import cn.hellp.touch.cpc102.componet.PlayerController;
 import cn.hellp.touch.cpc102.componet.WeaponComponent;
-import cn.hellp.touch.cpc102.componet.PlayerControl;
 import cn.hellp.touch.cpc102.weapon.Gun;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.dsl.components.KeepOnScreenComponent;
@@ -16,6 +17,23 @@ import javafx.scene.shape.Rectangle;
 public class Player {
     private boolean isOnGround;
     private Entity entity;
+    private WeaponComponent weaponComponent;
+    private int health = 100;
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void takeHealth(int value) {
+        this.health -= value;
+        entity.getComponent(ChildBarComponent.class).setPercent(health);
+        if(this.health <= 0) {
+            FXGL.showMessage("游戏结束，得分为:"+FXGL.geti("points")+"分。", ()-> {
+                FXGL.getGameController().exit();
+            });
+        }
+    }
+
 
 
     public boolean isOnGround() {
@@ -31,7 +49,7 @@ public class Player {
     }
 
     public void joinLevel(Point2D starter) {
-        WeaponComponent weaponComponent = new WeaponComponent();
+        weaponComponent = new WeaponComponent();
         weaponComponent.setWeapon(new Gun(weaponComponent));
         entity = FXGL.entityBuilder()
                 .type(EntityType.PLAYER)
@@ -40,18 +58,10 @@ public class Player {
                 .collidable()
                 .view(new Rectangle(20,40,Color.color(0,1,1)))
                 .with(new KeepOnScreenComponent())
-                .with(new GravityComponent(400))
-                .with(new PlayerControl(400))
+                .with(new GravityComponent(300))
+                .with(new ChildBarComponent(-20,-35))
+                .with(new PlayerController(500))
                 .with(weaponComponent)
                 .buildAndAttach();
-    }
-
-    public void fight() {
-
-    }
-
-    public void leaveLevel() {
-        entity.removeFromWorld();
-        entity = null;
     }
 }

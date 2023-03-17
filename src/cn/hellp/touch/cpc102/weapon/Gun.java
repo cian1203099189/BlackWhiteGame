@@ -1,6 +1,7 @@
 package cn.hellp.touch.cpc102.weapon;
 
 import cn.hellp.touch.cpc102.auxiliary.EntityType;
+import cn.hellp.touch.cpc102.componet.BulletComponent;
 import cn.hellp.touch.cpc102.componet.WeaponComponent;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.dsl.components.ProjectileComponent;
@@ -10,24 +11,36 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 public class Gun extends Weapon {
-    private long lastShootTime = 0;
+    protected long lastShootTime = 0;
 
     public Gun(WeaponComponent parentComponent) {
-        super(parentComponent);
+        super(parentComponent, "手枪");
+    }
+
+    public Gun() {
+        super("手枪");
+    }
+
+    public Gun(String name) {
+        super(name);
     }
 
     @Override
     public void fight() {
         if (System.currentTimeMillis() - lastShootTime > 200) {
-            FXGL.entityBuilder()
-                    .at(entity.getRightX(), entity.getY())
-                    .type(EntityType.BULLET)
-                    .viewWithBBox(new Rectangle(10, 10, Color.color(0, 0, 0)))
-                    .with(new ProjectileComponent(FXGL.getInput().getVectorToMouse(entity.getPosition()), 600))
-                    .collidable()
-                    .buildAndAttach();
+            shootBullet();
             lastShootTime = System.currentTimeMillis();
         }
+    }
+
+    protected void shootBullet() {
+        FXGL.entityBuilder()
+                .at(entity.getRightX(), entity.getY())
+                .type(EntityType.BULLET)
+                .viewWithBBox(new Rectangle(10, 10, Color.color(0, 0, 0)))
+                .with(new BulletComponent(new ProjectileComponent(FXGL.getInput().getVectorToMouse(entity.getPosition()), 600)))
+                .collidable()
+                .buildAndAttach();
     }
 
     @Override

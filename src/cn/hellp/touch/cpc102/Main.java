@@ -1,8 +1,12 @@
 package cn.hellp.touch.cpc102;
 
+import cn.hellp.touch.cpc102.auxiliary.DropSpawner;
+import cn.hellp.touch.cpc102.auxiliary.EnemySpawner;
 import cn.hellp.touch.cpc102.auxiliary.EntityType;
-import cn.hellp.touch.cpc102.componet.EnemySpawner;
-import cn.hellp.touch.cpc102.componet.PlayerControl;
+import cn.hellp.touch.cpc102.componet.BulletComponent;
+import cn.hellp.touch.cpc102.componet.DropItem;
+import cn.hellp.touch.cpc102.componet.EnemyComponent;
+import cn.hellp.touch.cpc102.componet.PlayerController;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.dsl.FXGL;
@@ -29,7 +33,7 @@ public class Main extends GameApplication {
 
     @Override
     protected void initSettings(GameSettings gameSettings) {
-        gameSettings.setTitle("黑白 created by Zhou 会昌实验学校");
+        gameSettings.setTitle("黑白 • 射击小游戏");
         gameSettings.setWidth(800);
         gameSettings.setHeight(600);
         gameSettings.setVersion("1.0");
@@ -54,6 +58,7 @@ public class Main extends GameApplication {
                 .with(new PhysicsComponent())
                 .buildAndAttach();
         FXGL.getGameWorld().addEntityFactory(new EnemySpawner());
+        FXGL.getGameWorld().addEntityFactory(new DropSpawner());
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
@@ -74,9 +79,9 @@ public class Main extends GameApplication {
         return player;
     }
 
-    private Text pointText;
+    private static Text pointText;
 
-    public void addPoint() {
+    public static void addPoint() {
         FXGL.getip("points").setValue(FXGL.geti("points") + 1);
         pointText.setText("得分: "+FXGL.geti("points"));
     }
@@ -88,19 +93,20 @@ public class Main extends GameApplication {
             Main.getPlayer().setOnGround(true);
         });
         FXGL.onCollisionBegin(EntityType.BULLET, EntityType.ENEMY, (b, e)->{
-            b.removeFromWorld();
-            e.removeFromWorld();
-            addPoint();
+            b.getComponent(BulletComponent.class).onHitEnemy(e);
         });
         FXGL.onCollisionBegin(EntityType.PLAYER, EntityType.ENEMY, (p, e)->{
-            FXGL.showMessage("游戏结束，得分为:"+FXGL.geti("points")+"分。", ()-> {
-                FXGL.getGameController().exit();
-            });
+            e.getComponent(EnemyComponent.class).onTouchedPlayer();
+        });
+        FXGL.onCollisionBegin(EntityType.DROP, EntityType.PLAYER, (d, p) -> {
+            d.getComponent(DropItem.class).changeItem();
+            d.removeFromWorld();
         });
     }
 
-    private long lastSpawnTime = System.currentTimeMillis();
-    private final Random random = new Random(System.currentTimeMillis());
+    private static long lastSpawnTime = System.currentTimeMillis();
+    private static final Random random = new Random(System.currentTimeMillis());
+    private static int spawnTimes = 0;
 
     @Override
     protected void onUpdate(double tpf) {
@@ -108,12 +114,17 @@ public class Main extends GameApplication {
             int i;
             FXGL.getGameWorld().spawn("enemy",new SpawnData(new Point2D(((i = random.nextInt(0,400)) > 200 ? i+400 : i),370)));
             lastSpawnTime = System.currentTimeMillis();
+            spawnTimes++;
+            if(spawnTimes >= 5) {
+                FXGL.getGameWorld().spawn("drop",new SpawnData(new Point2D(((i = random.nextInt(0,400)) > 200 ? i+400 : i),370)));
+                spawnTimes = 0;
+            }
         }
     }
 
     @Override
     protected void initInput() {
         FXGL.getInput().clearAll();
-        PlayerControl.initInput();
+        PlayerController.initInput();
     }
 }

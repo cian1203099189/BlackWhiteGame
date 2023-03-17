@@ -1,6 +1,8 @@
+
 package cn.hellp.touch.cpc102.componet;
 
 import cn.hellp.touch.cpc102.Main;
+import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
 
 public class MoveToPlayerComponent extends Component {
@@ -13,5 +15,9 @@ public class MoveToPlayerComponent extends Component {
     @Override
     public void onUpdate(double tpf) {
         entity.translateX((entity.getX() > Main.getPlayer().getEntity().getX() ? -speed : speed) * tpf);
+    }
+
+    public void setEntity(Entity entity) {
+        this.entity = entity;
     }
 }

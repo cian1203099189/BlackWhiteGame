@@ -1,3 +1,4 @@
+
 package cn.hellp.touch.cpc102.componet;
 
 import cn.hellp.touch.cpc102.Main;
@@ -17,3 +18,4 @@ public class GravityComponent extends Component {
         }
     }
 }
+
